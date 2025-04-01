@@ -13,8 +13,6 @@ export const getAllUsers=async (req,res,next)=>{
     } catch (error) {
         console.log(error);
         console.log("keyy");
-
-        
         return res.status(500).json({message:"ERROR",cause:error.message});
     }
     
@@ -38,8 +36,6 @@ export const userSignup=async (req,res,next)=>{
 
 
         //cookie
-
-          //cookie
     res.clearCookie(COOKIE_NAME,
         { httpOnly:true,domain:'localhost',signed:true,path:'/'}
      );
@@ -49,7 +45,7 @@ export const userSignup=async (req,res,next)=>{
      expires.setDate(expires.getDate()+7)
      res.cookie(COOKIE_NAME,token,{path:"/",domain:"localhost",expires,httpOnly:true,signed:true  });
  
-        return res.status(201).json({message:"User created",user});
+        return res.status(200).json({message:"User created",name:user.name,email:user.email});
         
     } catch (error) {
         console.log(error);
@@ -80,7 +76,7 @@ export const userLogin=async (req,res,next)=>{
     res.cookie(COOKIE_NAME,token,{path:"/",domain:"localhost",expires,httpOnly:true,signed:true  });
 
 
-    return res.status(200).json({ message: "Successfully logged in", userId: user.id.toString() });
+    return res.status(200).json({ message: "Successfully logged in",name:user.name,email:user.email});
         
     } catch (error) {
         console.log(error);
@@ -91,3 +87,21 @@ export const userLogin=async (req,res,next)=>{
 }
 
 
+
+export const verifyUser=async (req,res,next)=>{
+    try {
+
+
+        const user= await Users.findById(res.locals.jwtData.id);
+        if (!user || user._id.toString()!==res.locals.jwtData.id) return res.status(401).send("User not registerd OR Token malfunctioned");
+
+
+    return res.status(200).json({ message: "Successfully logged in",name:user.name,email:user.email});
+        
+    } catch (error) {
+        console.log(error);
+        
+        return res.status(500).json({message:"ERROR",cause:error.message});
+    }
+
+}
